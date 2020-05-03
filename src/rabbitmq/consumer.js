@@ -19,7 +19,7 @@ function openRabbitConnection() {
     });
 }
 
-const subscribe = (channel) => (consumer) => {
+const consume = (channel) => (consumer) => {
     channel.consume(
         queue,
         consumer,
@@ -33,6 +33,6 @@ module.exports = openRabbitConnection()
     return connection.createChannel();
 })
 .then(function(channel) {
-    return channel.assertQueue(queue).then((ok) => subscribe(channel));
+    return channel.assertQueue(queue).then((ok) => consume(channel));
 })
 .catch(console.warn);
