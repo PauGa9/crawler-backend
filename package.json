@@ -4,8 +4,8 @@
   "description": "Simple Crawler for learning purposes",
   "main": "./api/index.js",
   "scripts": {
-    "start-api": "node ./api/index.js",
-    "start-consumer": "node ./api/index.js",
+    "start-api": "node ./src/api/index.js",
+    "start-consumer": "node ./src/api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Pau Gasol",
