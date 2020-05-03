@@ -2,16 +2,6 @@ const axios = require("axios");
 const createConsumer = require('../rabbitmq/consumer');
 const createMongoRepository = require('../mongodb');
 
-Promise.all([createConsumer, createMongoRepository]).then(function(promises) {
-    const consumer = promises[0];
-    const mongoRepository = promises[1];
-
-    consumer(consumerFn);
-});
-
-    // mongo.save(title, links)
-    // links.forEach(rabbit.publish(mainPage, url:link))
-
 function dataFromMessage({content}) {
     return JSON.parse(content);
 }
@@ -47,20 +37,35 @@ const absoluteUrl = (domain) => (link) => {
 const linksRegex = flatRegexpGroups(/<a.+?href=["']([^>]+)["']/g);
 const titleRegex = flatRegexpGroups(/<title>(.+)<\/title>/g);
 
-function consumerFn(message, ack) {
+const consumerFn = (mongoRepository, publish) => (message, ack) => {
     const data = dataFromMessage(message);
     const forceAbsoluteUrl = absoluteUrl(data.url)
+    const once = (fn) => {
+        let called = false;
+        return () => !called && (called = true) && fn();
+    }
+    const onceAck = once(ack)
 
     getPage(data.url)
     .then(function(html) {
         const links = linksRegex(html).map(forceAbsoluteUrl);
         const title = titleRegex(html)[0];
-        const document = {links, title}
-        console.log(document)
-        ack();
+        mongoRepository.savePage({links, title, mainPage: data.mainPage, level: data.level});
+        onceAck();
+        if (data.level < 3) {
+            const nextLevel = data.level + 1;
+            console.log(`publish to RabbitMQ with level +1, from page ${data.url} with level ${data.level} to level ${nextLevel}`)
+        }
     })
     .catch(function(error) {
-        ack();
-        console.error(`error consuming a message from RabbitMQ`);
+        onceAck();
+        console.error('error while consuming a message from RabbitMQ', error);
     })
 }
+
+Promise.all([createConsumer, createMongoRepository]).then(function(promises) {
+    const subscribeConsumer = promises[0];
+    const mongoRepository = promises[1];
+
+    subscribeConsumer(consumerFn(mongoRepository));
+});

@@ -21,6 +21,10 @@ function createRepository(db) {
         findPagesByMainPage: function (mainPage) {
             const collection = db.collection(COLLECTION_NAME);
             return collection.find({"mainPage": mainPage}).toArray();
+        },
+        savePage: function (document) {
+            const collection = db.collection(COLLECTION_NAME);
+            return collection.insertOne(document);
         }
     }
 }
