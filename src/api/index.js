@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT;
 
-const createPublisher = require('./publisher.js');
+const createPublisher = require('../rabbitmq/publisher');
 const createMongoRepository = require('../mongodb');
 
 Promise.all([createPublisher, createMongoRepository]).then(function(promises) {
