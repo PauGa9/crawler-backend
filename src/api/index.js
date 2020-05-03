@@ -17,7 +17,7 @@ Promise.all([createPublisher, createMongoRepository]).then(function(promises) {
             return response.status(400).send();
         }
         
-        const message = JSON.stringify({"main": true, "url": url});
+        const message = JSON.stringify({"mainPage": url, "url": url, "level": 0});
         const published = publish(message)
         if (!published) {
             return response.status(500).send('error')
