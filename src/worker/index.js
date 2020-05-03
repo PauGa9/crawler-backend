@@ -47,7 +47,7 @@ const absoluteUrl = (domain) => (link) => {
 const linksRegex = flatRegexpGroups(/<a.+?href=["']([^>]+)["']/g);
 const titleRegex = flatRegexpGroups(/<title>(.+)<\/title>/g);
 
-function consumerFn(message) {
+function consumerFn(message, ack) {
     const data = dataFromMessage(message);
     const forceAbsoluteUrl = absoluteUrl(data.url)
 
@@ -57,5 +57,10 @@ function consumerFn(message) {
         const title = titleRegex(html)[0];
         const document = {links, title}
         console.log(document)
+        ack();
+    })
+    .catch(function(error) {
+        ack();
+        console.error(`error consuming a message from RabbitMQ`);
     })
 }

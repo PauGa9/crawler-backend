@@ -19,11 +19,14 @@ function openRabbitConnection() {
     });
 }
 
-const consume = (channel) => (consumer) => {
+const subscribeConsumer = (channel) => (consumerFn) => {
+    channel.prefetch(10);
     channel.consume(
         queue,
-        consumer,
-        { noAck: true }
+        (message) => {
+            const ack = () => channel.ack(message);
+            consumerFn(message, ack);
+        }
     )
     .then(console.log(`Subscribed to "${queue}" queue`));
 }
@@ -33,6 +36,8 @@ module.exports = openRabbitConnection()
     return connection.createChannel();
 })
 .then(function(channel) {
-    return channel.assertQueue(queue).then((ok) => consume(channel));
+    return channel
+        .assertQueue(queue)
+        .then((ok) => subscribeConsumer(channel));
 })
 .catch(console.warn);
