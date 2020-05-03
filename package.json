@@ -5,13 +5,14 @@
   "main": "./api/index.js",
   "scripts": {
     "start-api": "node ./src/api/index.js",
-    "start-consumer": "node ./src/api/index.js",
+    "start-worker": "node ./src/worker/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Pau Gasol",
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.5.5",
+    "axios": "^0.19.2",
     "express": "^4.17.1",
     "mongodb": "^3.5.7"
   }
