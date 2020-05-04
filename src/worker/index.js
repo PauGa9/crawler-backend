@@ -35,8 +35,8 @@ const absoluteUrl = (domain) => (link) => {
     return link;
 }
 
-const linksRegex = flatRegexpGroups(/<a.+?href=["']([^>]+)["']/g);
-const titleRegex = flatRegexpGroups(/<title>(.+)<\/title>/g);
+const linksRegex = flatRegexpGroups(/<a.+?href=["']([^>"']+)["']/g);
+const titleRegex = flatRegexpGroups(/<title.*?>(.+)<\/title>/g);
 
 const consumerFn = (mongoRepository, publish) => (message, ack) => {
     const data = dataFromMessage(message);
@@ -51,7 +51,7 @@ const consumerFn = (mongoRepository, publish) => (message, ack) => {
     .then(function(html) {
         const links = linksRegex(html).map(forceAbsoluteUrl);
         const title = titleRegex(html)[0];
-        mongoRepository.savePage({links, title, mainPage: data.mainPage, level: data.level});
+        mongoRepository.savePage({links, title, mainPage: data.mainPage, url:data.url, level: data.level});
         onceAck();
         if (data.level < 3) {
             const nextLevel = data.level + 1;
