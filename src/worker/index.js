@@ -1,5 +1,6 @@
 const axios = require("axios");
 const createConsumer = require('../rabbitmq/consumer');
+const createPublisher = require('../rabbitmq/publisher');
 const createMongoRepository = require('../mongodb');
 
 function dataFromMessage({content}) {
@@ -55,6 +56,9 @@ const consumerFn = (mongoRepository, publish) => (message, ack) => {
         if (data.level < 3) {
             const nextLevel = data.level + 1;
             console.log(`publish to RabbitMQ with level +1, from page ${data.url} with level ${data.level} to level ${nextLevel}`)
+            links.forEach(function (link) {
+                publish(JSON.stringify({"mainPage": data.mainPage, "url": link, "level": nextLevel}));
+            });
         }
     })
     .catch(function(error) {
@@ -63,9 +67,14 @@ const consumerFn = (mongoRepository, publish) => (message, ack) => {
     })
 }
 
-Promise.all([createConsumer, createMongoRepository]).then(function(promises) {
+Promise.all([
+    createConsumer,
+    createPublisher,
+    createMongoRepository
+]).then(function(promises) {
     const subscribeConsumer = promises[0];
-    const mongoRepository = promises[1];
+    const publish = promises[1];
+    const mongoRepository = promises[2];
 
-    subscribeConsumer(consumerFn(mongoRepository));
+    subscribeConsumer(consumerFn(mongoRepository, publish));
 });
