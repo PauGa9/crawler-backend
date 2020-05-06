@@ -10,7 +10,7 @@ const subscribeConsumer = (channel) => (consumerFn) => {
             consumerFn(message, ack);
         }
     )
-    .then(console.log(`Subscribed to "${queue}" queue`));
+    .then(() => console.log(`Subscribed to "${queue}" queue`));
 }
 
 module.exports = openRabbitConnection
