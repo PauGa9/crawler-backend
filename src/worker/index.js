@@ -53,7 +53,7 @@ const consumerFn = (mongoRepository, publish) => (message, ack) => {
         const title = titleRegex(html)[0];
         mongoRepository.savePage({links, title, mainPage: data.mainPage, url:data.url, level: data.level});
         onceAck();
-        if (data.level < 3) {
+        if (data.level < 1) {
             const nextLevel = data.level + 1;
             console.log(`publish to RabbitMQ with level +1, from page ${data.url} with level ${data.level} to level ${nextLevel}`)
             links.forEach(function (link) {
