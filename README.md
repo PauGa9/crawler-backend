@@ -1,5 +1,5 @@
 # crawler-backend
-Crawler base code for learning purpose
+Aplicación Crawler con fines formativos. Para realizar el workshop, mira el capítulo en [YouTube](https://youtu.be/eXcOayFWRYg).
 
 ## Env Variables para servicios api y worker
 - NODE_ENV=development
