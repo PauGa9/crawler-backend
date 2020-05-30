@@ -8,9 +8,9 @@ function dataFromMessage({content}) {
 }
 
 function getPage(url) {
-    return axios.get(url)
+    return axios.get(url, {responseType: 'arraybuffer', reponseEncoding: 'binary'})
         .then(function(response) {
-            return response.data;
+            return response.data.toString('utf8');
         })
 }
 
@@ -55,7 +55,6 @@ const consumerFn = (mongoRepository, publish) => (message, ack) => {
         onceAck();
         if (data.level < 1) {
             const nextLevel = data.level + 1;
-            console.log(`publish to RabbitMQ with level +1, from page ${data.url} with level ${data.level} to level ${nextLevel}`)
             links.forEach(function (link) {
                 publish(JSON.stringify({"mainPage": data.mainPage, "url": link, "level": nextLevel}));
             });
@@ -63,7 +62,7 @@ const consumerFn = (mongoRepository, publish) => (message, ack) => {
     })
     .catch(function(error) {
         onceAck();
-        console.error('error while consuming a message from RabbitMQ', error);
+        console.error('error while consuming a message from RabbitMQ', error.message);
     })
 }
 
