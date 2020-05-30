@@ -1,0 +1,49 @@
+version: '3.5'
+
+services:
+    rabbitmq:
+        image: rabbitmq:management-alpine
+        ports:
+            - 15672:15672
+    
+    mongodb:
+        image: mongo
+        volumes:
+            - mongodata:/data/db
+
+    api:
+        image: node:12-alpine
+        volumes:
+            - ./:/app
+        working_dir: /app
+        command: npm run start-api
+        environment:
+            - NODE_ENV=development
+            - PORT=3000
+            - RABBIT_HOST=rabbitmq
+            - RABBIT_PORT=5672
+            - RABBIT_USER=guest
+            - RABBIT_PASSWORD=guest
+            - MONGO_HOST=mongodb
+            - MONGO_PORT=27017
+        ports:
+            - 80:3000
+
+    worker:
+        image: node:12-alpine
+        volumes:
+            - ./:/app
+        working_dir: /app
+        command: npm run start-worker
+        environment:
+            - NODE_ENV=development
+            - PORT=3000
+            - RABBIT_HOST=rabbitmq
+            - RABBIT_PORT=5672
+            - RABBIT_USER=guest
+            - RABBIT_PASSWORD=guest
+            - MONGO_HOST=mongodb
+            - MONGO_PORT=27017
+
+volumes:
+    mongodata:
